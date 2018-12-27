@@ -1,4 +1,4 @@
-const gulp = require("gulp"),
+const gulp = require('gulp'),
       del = require('del'),
       less = require('gulp-less'),
       browserify = require('browserify'),
@@ -7,14 +7,21 @@ const gulp = require("gulp"),
       vinylPaths = require('vinyl-paths'),
       buffer = require('vinyl-buffer'),
       uglify = require('gulp-uglify'),
-      mustache = require("gulp-mustache"),
-      livereload  = require('gulp-livereload');
+      mustache = require('gulp-mustache'),
+      livereload  = require('gulp-livereload'),
+      data = require('gulp-data'),
+      path = require('path');
 
 const destinations = {
   root: './dist',
   static: './dist/static'
 };
 
+const cssMap = {
+  index: 'style.css',
+  options: 'options.css',
+  default: 'style.css'
+};
 
 gulp.task('clean', function(clean) {
   return gulp
@@ -22,10 +29,19 @@ gulp.task('clean', function(clean) {
     .pipe(vinylPaths(del));
 });
 
-
 gulp.task('build:html', function() {
   return gulp
-    .src("./src/*.mustache")
+    .src('./src/*.mustache')
+    .pipe(data(function(file) {
+      let key = path.basename(file.path, '.mustache');
+
+      if (key in cssMap){
+        cssPath = cssMap[key];
+      } else {
+        cssPath = cssMap.default;
+      }
+      return { cssPath: cssPath };
+    }))
     .pipe(mustache({}, {
      extension: '.html'
     }))
@@ -34,7 +50,7 @@ gulp.task('build:html', function() {
 
 gulp.task('build:js', function() {
   return browserify({entries: './src/static/app.js', debug: true})
-    .transform("babelify", { presets: ["@babel/preset-env"] })
+    .transform('babelify', { presets: ['@babel/preset-env'] })
     .bundle()
     .pipe(source('app.js'))
     .pipe(buffer())

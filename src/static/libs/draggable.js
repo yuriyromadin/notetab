@@ -1,9 +1,9 @@
-import * as math from 'mathjs'
-import { Observable } from './observable.js'
+import * as math from 'mathjs';
+import { Observable } from './observable.js';
 
 export class Draggable extends Observable {
   constructor(element){
-    super()
+    super();
 
     this.element = element;
     this.element.addEventListener('mousedown', this.onMouseDown.bind(this));
@@ -11,10 +11,10 @@ export class Draggable extends Observable {
     this.onMouseMove = this._onMouseMove.bind(this);
     this.onMouseUp = this._onMouseUp.bind(this);
 
-    this.updateWindowWith();
+    this.updateWindowWidth();
   }
 
-  updateWindowWith() {
+  updateWindowWidth() {
     this.windowWidth = document.documentElement.clientWidth;
     this.windowHeight = document.documentElement.clientHeight;
   }
@@ -38,6 +38,6 @@ export class Draggable extends Observable {
     document.body.addEventListener('mouseup', this.onMouseUp);
     this.element.classList.add('drag-start');
     this.dispatch('start');
-    this.updateWindowWith();
+    this.updateWindowWidth();
   }
 }

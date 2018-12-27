@@ -10,7 +10,7 @@ export const _defaults = {
   editor: {
     mode: 'text',
     tabSize: 2,
-    input: '123'
+    input: 'Start writing something awesome....\n'
   },
   calculator: {
     input: '1 + 2 / 2'

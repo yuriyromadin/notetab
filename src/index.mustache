@@ -1,36 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>New Notetab</title>
-    <link rel="stylesheet" href="static/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <link rel="icon" type="image/png" href="static/icon-16.png">
-    <script src="static/ace.1.4.2/ace.js"></script>
-  </head>
-  <body>
-    <div class="grid" id="app"></div>
-    <script id="appView" type="x-tmpl-mustache">
-      {{={{{ }}}=}}
-      <div id="editor"></div>
-      <div id="calculator"></div>
-      <div class="gutter"></div>
-      {{{={{ }}=}}}
-    </script>
-    <script id="calculatorView" type="x-tmpl-mustache">
-      {{={{{ }}}=}}
-      <div class="calculator">
-        <div id="calculator" class="{{ className }}">
-          <div class="input" contenteditable="true">
-            {{ #lines }}
-            <div>{{ . }}</div>
-            {{ /lines }}
-          </div>
-          <div class="output"></div>
-        </div>
-      </div>
-      {{{={{ }}=}}}
-    </script>
-    <script src="static/app.js"></script>
-  </body>
-</html>
+{{> ./partials/header}}
+<div class="grid" id="app"></div>
+
+{{> ./partials/app }}
+{{> ./partials/calculator }}
+
+<script src="static/ace.1.4.2/ace.js"></script>
+<script src="static/app.js"></script>
+
+{{> ./partials/footer}}
