@@ -1,22 +1,19 @@
 import * as Mustache from 'mustache';
 import { _defaults, View } from './helpers.js';
-import { BlockStorage } from './libs/storage.js';
 
 
-class OptionsView extends View {
+class AppOptionsView extends View {
     constructor(options){
       super(options);
-      this.editorSettings = new BlockStorage(options.editorStorage);
     }
 
     onLoad(data) {
       Object.assign(this.settings, data);
-      this.editorSettings.get(this.render.bind(this));
+      this.render();
     }
 
     render(){
       const template = this.getTemplate('optionsView');
-
       this.$scope.innerHTML = Mustache.render(template, {
         themes: [],
         settings: this.settings
@@ -24,9 +21,8 @@ class OptionsView extends View {
     }
 }
 
-window.app = new OptionsView({
+window.app = new AppOptionsView({
   selector: '#app',
   storage: 'AS_',
-  editorStorage: 'AE_',
   _defaults: _defaults.app
 });
