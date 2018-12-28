@@ -1,5 +1,23 @@
 {{> ./partials/header}}
 
-<p>Page content</p>
+<div id="app"></div>
+
+<script id="optionsView" type="x-tmpl-mustache">
+  {{={{{ }}}=}}
+<form id="options">
+  <fieldset>
+  <legend>General:</legend>
+  <div>
+    <label>Theme:</label>
+    <select>
+      {{ #themes }}
+      <option value="{{ name }}">{{ caption }}</option>
+      {{ /themes }}
+    </select>
+  </div>
+  </fieldset>
+</form>
+{{{={{ }}=}}}
+</script>
 
 {{> ./partials/footer}}

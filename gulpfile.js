@@ -3,24 +3,33 @@ const gulp = require('gulp'),
       less = require('gulp-less'),
       browserify = require('browserify'),
       babelify = require('babelify'),
-      source = require('vinyl-source-stream'),
       vinylPaths = require('vinyl-paths'),
       buffer = require('vinyl-buffer'),
       uglify = require('gulp-uglify'),
       mustache = require('gulp-mustache'),
       livereload  = require('gulp-livereload'),
       data = require('gulp-data'),
-      path = require('path');
+      path = require('path'),
+      tap = require('gulp-tap');
 
 const destinations = {
   root: './dist',
   static: './dist/static'
 };
 
-const cssMap = {
-  index: 'style.css',
-  options: 'options.css',
-  default: 'style.css'
+const assets = {
+  index: {
+    css: 'style.css',
+    js: 'app.js',
+  },
+  options: {
+    css: 'options.css',
+    js: 'app.options.js',
+  },
+  default: {
+    css: '',
+    js: ''
+  }
 };
 
 gulp.task('clean', function(clean) {
@@ -35,12 +44,12 @@ gulp.task('build:html', function() {
     .pipe(data(function(file) {
       let key = path.basename(file.path, '.mustache');
 
-      if (key in cssMap){
-        cssPath = cssMap[key];
+      if (key in assets){
+        pageAssets = assets[key];
       } else {
-        cssPath = cssMap.default;
+        pageAssets = assets.default;
       }
-      return { cssPath: cssPath };
+      return { assets: pageAssets };
     }))
     .pipe(mustache({}, {
      extension: '.html'
@@ -49,10 +58,12 @@ gulp.task('build:html', function() {
 });
 
 gulp.task('build:js', function() {
-  return browserify({entries: './src/static/app.js', debug: true})
-    .transform('babelify', { presets: ['@babel/preset-env'] })
-    .bundle()
-    .pipe(source('app.js'))
+  return gulp.src('./src/static/app*.js', {read: false})
+    .pipe(tap(function (file) {
+      file.contents = browserify(
+        file.path, {debug: true}
+      ).transform('babelify', { presets: ['@babel/preset-env'] }).bundle();
+    }))
     .pipe(buffer())
     // .pipe(uglify())
     .pipe(gulp.dest(destinations.static))
@@ -84,9 +95,9 @@ gulp.task('copy', function (done) {
 
 gulp.task('watch', function(){
   livereload.listen();
-  gulp.watch('./src/static/**/*.js', gulp.series('build:js'));
+  gulp.watch('./src/**/*', gulp.series('build:html', 'build:css'));
 });
 
 
 gulp.task('build', gulp.series('clean', 'copy', 'build:html', 'build:css', 'build:js'));
-gulp.task('default', gulp.series('build:js', 'watch'));
+gulp.task('default', gulp.series('build:html', 'build:css', 'watch'));

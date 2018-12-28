@@ -1,36 +1,10 @@
 import * as math from 'mathjs';
 import * as Mustache from 'mustache';
 
-import { _defaults } from './helpers.js';
-import { BlockStorage } from './libs/storage.js';
+import { _defaults, View } from './helpers.js';
 import { Draggable } from './libs/draggable.js';
 import { Calc } from './libs/calc.js';
 
-
-class View {
-  constructor(options){
-    this.$scope = document.querySelector(options.selector);
-    this.storage = new BlockStorage(options.storage);
-    this.settings = Object.assign({}, options._defaults);
-    this.timeoutId = '';
-    this.saveDelay = 500;
-    this.storage.get(this.onLoad.bind(this));
-  }
-
-  saveSettings(){
-    window.clearTimeout(this.timeoutId);
-    this.timeoutId = window.setTimeout(() => {
-      this.storage.set(this.settings);
-      console.log('saving...', this.storage.prefix);
-    }, this.saveDelay);
-  }
-
-  getTemplate(id){
-    return document.getElementById(id).innerText;
-  }
-
-  onLoad() {}
-}
 
 class EditorView extends View {
   constructor(options){
