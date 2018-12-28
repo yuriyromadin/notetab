@@ -43,3 +43,16 @@ export const _defaults = {
     input: '1 + 2 / 2'
   }
 };
+
+export const groupBy = (arr, keyGetter) => {
+  return arr.reduce((acc, item) => {
+    const key = keyGetter(item);
+
+    if(!(key in acc)){
+      acc[key] = [];
+    }
+    acc[key].push(item);
+
+    return acc;
+  }, {});
+};

@@ -9,9 +9,17 @@
   <legend>General:</legend>
   <div>
     <label>Theme:</label>
-    <select>
+    <select class="setting" name="theme">
       {{ #themes }}
-      <option value="{{ name }}">{{ caption }}</option>
+      {{#.}}
+      <optgroup label="{{key}}">
+        {{ #value }}
+        {{#.}}
+        <option value="{{ name }}" {{selected}}>{{ caption }}</option>
+        {{/.}}
+        {{ /value }}
+      </optgroup>
+      {{/.}}
       {{ /themes }}
     </select>
   </div>
@@ -20,4 +28,6 @@
 {{{={{ }}=}}}
 </script>
 
+<script src="static/ace.1.4.2/ext-themelist.js"></script>
+<script src="static/ace.1.4.2/ext-modelist.js"></script>
 {{> ./partials/footer}}
