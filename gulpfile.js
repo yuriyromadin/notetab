@@ -27,6 +27,9 @@ const destinations = {
           css: 'options.css',
           js: 'app.options.js',
         },
+        background: {
+          js: 'app.background.js',
+        },
         default: {
           css: '',
           js: ''
@@ -118,7 +121,8 @@ gulp.task('build:css', () => {
 
 gulp.task('build:js', gulp.parallel(
   () => { return buildBrowserify(assets.index.js, false); },
-  () => { return buildBrowserify(assets.options.js, false); }
+  () => { return buildBrowserify(assets.options.js, false); },
+  () => { return buildBrowserify(assets.background.js, false); }
 ));
 
 gulp.task('build:static', gulp.series('build:html', 'build:css'));
@@ -126,7 +130,11 @@ gulp.task('build:static', gulp.series('build:html', 'build:css'));
 gulp.task('watch', (done) => {
   buildBrowserify(assets.index.js, true);
   buildBrowserify(assets.options.js, true);
+  buildBrowserify(assets.background.js, true);
   livereload.listen();
   gulp.watch('./src/**/*.{less,mustache}', gulp.series('build:static'));
   done();
 });
+
+
+gulp.task('build', gulp.series('clean', 'copy', 'build:html', 'build:css', 'build:js'));

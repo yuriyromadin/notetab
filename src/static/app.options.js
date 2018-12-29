@@ -28,6 +28,27 @@ class OptionsView extends View {
 }
 
 
+class EditorOptionsView extends OptionsView {
+  constructor(options){
+    super(options);
+  }
+
+  render(){
+    const template = this.getTemplate('EditorOptionsView'),
+          mode = this.settings.mode;
+
+    this.$scope.innerHTML = Mustache.render(template, {
+      modes: ace.require('ace/ext/modelist').modes,
+      settings: this.settings,
+      selected: function(){
+        return this.name === mode ? 'selected' : '';
+      }
+    });
+
+    this.events();
+  }
+
+}
 
 class AppOptionsView extends OptionsView {
   constructor(options){
@@ -53,7 +74,7 @@ class AppOptionsView extends OptionsView {
   }
 
   render(){
-    const template = this.getTemplate('optionsView'),
+    const template = this.getTemplate('AppOptionsView'),
           theme = this.settings.theme;
 
     this.$scope.innerHTML = Mustache.render(template, {
@@ -68,7 +89,13 @@ class AppOptionsView extends OptionsView {
 }
 
 window.app = new AppOptionsView({
-  selector: '#app',
+  selector: '#appOptions',
   storage: 'AS_',
   _defaults: _defaults.app
+});
+
+window.editor = new EditorOptionsView({
+  selector: '#editorOptions',
+  storage: 'AE_',
+  _defaults: _defaults.editor
 });
