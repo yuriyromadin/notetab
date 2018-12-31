@@ -36,8 +36,9 @@ const destinations = {
         }
       };
 
-let babelify = require('babelify'),
-    buildBrowserify = (file, watch) => {
+let babelify = require('babelify');
+
+let buildBrowserify = (file, watch) => {
 
   let props = {
         entries: [`./src/static/${file}`],
