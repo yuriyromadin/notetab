@@ -1,6 +1,7 @@
 # Dependency directories
 node_modules/
 dist/
+chrome/
 
 Mac OSx
 .DS_Store

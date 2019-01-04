@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>New Notetab</title>
+    <link rel="stylesheet" href="static/options.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="icon" type="image/png" href="static/icon-16.png">
+    <script src="static/ace.1.4.2/ace.js"></script>
+  </head>
+  <body>
+
+<form id="app">
+  <fieldset id="appOptions"></fieldset>
+  <fieldset id="editorOptions"></fieldset>
+</form>
+
+<script id="AppOptionsView" type="x-tmpl-mustache">
+<legend>General:</legend>
+<div class="field">
+  <label>Theme:</label>
+  <select class="setting" name="theme">
+    {{ #themes }}
+    {{#.}}
+    <optgroup label="{{key}}">
+      {{ #value }}
+      {{#.}}
+      <option value="{{ name }}" {{selected}}>{{ caption }}</option>
+      {{/.}}
+      {{ /value }}
+    </optgroup>
+    {{/.}}
+    {{ /themes }}
+  </select>
+</div>
+</script>
+
+<script id="EditorOptionsView" type="x-tmpl-mustache">
+<legend>Text editor settings:</legend>
+<div class="field">
+  <label>Language:</label>
+  <select class="setting" name="mode">
+    {{ #modes }}
+    {{#.}}
+    <option value="{{ name }}" {{selected}}>{{ caption }}</option>
+    {{/.}}
+    {{ /modes }}
+  </select>
+</div>
+<div class="field">
+  <label>Tab size:</label>
+  <input type="number" min="1" max="10" class="setting" name="tabSize" value="{{ settings.tabSize }}">
+</div>
+</script>
+
+
+<script src="static/ace.1.4.2/ext-themelist.js"></script>
+<script src="static/ace.1.4.2/ext-modelist.js"></script>
+    <script src="static/app.options.web.js"></script>
+  </body>
+</html>

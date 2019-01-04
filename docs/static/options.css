@@ -1,0 +1,17 @@
+body {
+  background: #f8f9fa;
+  width: 400px;
+  padding: 0;
+}
+fieldset {
+  margin-bottom: 2rem;
+  border-radius: 0.1875rem;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem 0.875rem 1rem;
+}
+fieldset legend {
+  font-size: 0.75rem;
+}
+fieldset .field:not(:last-child) {
+  padding-bottom: 1rem;
+}

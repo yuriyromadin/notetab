@@ -1,8 +1,39 @@
-export class BlockStorage {
+export class LocalStorage {
+  constructor(prefix='BS_'){
+    this.prefix = `notetab.${prefix}`;
+  }
+
+  set(obj, callback) {
+    let value = JSON.stringify(obj);
+
+    localStorage.setItem(this.prefix, value);
+    if(typeof callback === 'function'){
+      callback();
+    }
+  }
+
+  get(callback) {
+    let value = localStorage.getItem(this.prefix);
+
+    if(value){
+      try{
+        value = JSON.parse(value);
+      } catch(e) {
+        throw new Error('LocalStorage is corrupted');
+      }
+    } else {
+      value = {};
+    }
+
+    callback(value);
+  }
+}
+
+export class ChromeStorage {
     constructor(prefix='BS_'){
       this.prefix = prefix;
       this.maxBytesPerItem = 4086;
-      this.maxBytes = this.maxBytesPerItem * chrome.storage.sync.MAX_ITEMS;
+      this.maxBytes = this.maxBytesPerItem * 512;
       this.itemCount = 0;
 
       chrome.storage.sync.get(null, this.onLoad.bind(this));

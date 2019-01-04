@@ -14,31 +14,54 @@ const gulp = require('gulp'),
       source = require('vinyl-source-stream'),
       gulpif = require('gulp-if');
 
-const destinations = {
-        root: './dist',
-        static: './dist/static'
+const apps = {
+  web: {
+    name: 'web',
+    destinations: {
+      root: './docs/',
+      static: './docs/static'
+    },
+    assets: {
+      index: {
+        css: 'style.css',
+        js: 'app.web.js',
       },
-      assets = {
-        index: {
-          css: 'style.css',
-          js: 'app.js',
-        },
-        options: {
-          css: 'options.css',
-          js: 'app.options.js',
-        },
-        background: {
-          js: 'app.background.js',
-        },
-        default: {
-          css: '',
-          js: ''
-        }
-      };
+      options: {
+        css: 'options.css',
+        js: 'app.options.web.js',
+      }
+    }
+  },
+  chrome: {
+    name: 'chrome',
+    destinations: {
+      root: './chrome/',
+      static: './chrome/static'
+    },
+    assets: {
+      index: {
+        css: 'style.css',
+        js: 'app.chrome.js',
+      },
+      options: {
+        css: 'options.css',
+        js: 'app.options.chrome.js',
+      },
+      background: {
+        js: 'app.background.js',
+      }
+    }
+  }
+};
 
 let babelify = require('babelify');
 
-let buildBrowserify = (file, watch) => {
+babelify = babelify.configure({
+  presets: ["@babel/preset-env"]
+});
+
+
+let buildBrowserify = (app, file, watch) => {
 
   let props = {
         entries: [`./src/static/${file}`],
@@ -56,7 +79,7 @@ let buildBrowserify = (file, watch) => {
       .pipe(source(file))
       .pipe(buffer())
       .pipe(gulpif(!watch, uglify()))
-      .pipe(gulp.dest(destinations.static));
+      .pipe(gulp.dest(app.destinations.static));
   }
   bundler.on('update', function(e) {
     rebundle();
@@ -66,76 +89,85 @@ let buildBrowserify = (file, watch) => {
   return rebundle();
 };
 
-babelify = babelify.configure({
-  presets: ["@babel/preset-env"]
-});
-
-gulp.task('clean', function(clean) {
+let clean = (app) => {
   return gulp
-    .src(destinations.root)
+    .src(app.destinations.root, { allowEmpty: true })
     .pipe(vinylPaths(del));
-});
+};
 
-gulp.task('copy', (done) => {
+
+let copyStatic = (app, callback) => {
   gulp
     .src('./src/manifest.json')
-    .pipe(gulp.dest(destinations.root));
+    .pipe(gulp.dest(app.destinations.root));
 
   gulp
     .src('./src/static/libs/external/**/*')
-    .pipe(gulp.dest(destinations.static));
+    .pipe(gulp.dest(app.destinations.static));
 
   gulp
     .src('./src/static/icons/**/*')
-    .pipe(gulp.dest(destinations.static));
+    .pipe(gulp.dest(app.destinations.static));
 
-  done();
-});
+  callback();
+};
 
-gulp.task('build:html', function() {
+
+let buildHTML = app => {
   return gulp
     .src('./src/*.mustache')
     .pipe(data(function(file) {
       let key = path.basename(file.path, '.mustache');
 
-      if (key in assets){
-        pageAssets = assets[key];
+      if (key in app.assets){
+        pageAssets = app.assets[key];
       } else {
-        pageAssets = assets.default;
+        pageAssets = {};
       }
       return { assets: pageAssets };
     }))
     .pipe(mustache({}, {
      extension: '.html'
     }))
-    .pipe(gulp.dest(destinations.root))
+    .pipe(gulp.dest(app.destinations.root))
     .pipe(livereload());
-});
+};
 
-gulp.task('build:css', () => {
+let buildCSS = app => {
   return gulp
     .src('./src/static/**/*.less')
     .pipe(less())
-    .pipe(gulp.dest(destinations.static))
+    .pipe(gulp.dest(app.destinations.static))
     .pipe(livereload());
-});
+};
 
-gulp.task('build:js', gulp.parallel(
-  () => { return buildBrowserify(assets.index.js, false); },
-  () => { return buildBrowserify(assets.options.js, false); },
-  () => { return buildBrowserify(assets.background.js, false); }
-));
+let buildJS = (app, watch, callback) => {
+  for(let asset in app.assets){
+    buildBrowserify(app, app.assets[asset].js, watch);
+  }
+  callback();
+};
 
-gulp.task('build:static', gulp.series('build:html', 'build:css'));
-
-gulp.task('watch', (done) => {
-  buildBrowserify(assets.index.js, true);
-  buildBrowserify(assets.options.js, true);
-  buildBrowserify(assets.background.js, true);
+let watchApp = (app, callback) => {
+  buildJS(app, true, () => {});
   livereload.listen();
-  gulp.watch('./src/**/*.{less,mustache}', gulp.series('build:static'));
-  done();
-});
+  gulp.watch('./src/**/*.{less,mustache}', gulp.series(`build:html:${app.name}`, `build:css:${app.name}`));
+  callback();
+};
+
+gulp.task('clean:chrome', () => { return clean(apps.chrome); });
+gulp.task('copy:chrome', callback => { return copyStatic(apps.chrome, callback) });
+gulp.task('build:html:chrome', () => { return buildHTML(apps.chrome); });
+gulp.task('build:css:chrome', () => { return buildCSS(apps.chrome); });
+gulp.task('build:js:chrome', c => { return buildJS(apps.chrome, false, c); });
+gulp.task('build:chrome', gulp.series('clean:chrome', 'copy:chrome', 'build:html:chrome', 'build:css:chrome', 'build:js:chrome'));
+gulp.task('watch:chrome', callback => { return watchApp(apps.chrome, callback); });
 
 
-gulp.task('build', gulp.series('clean', 'copy', 'build:html', 'build:css', 'build:js'));
+gulp.task('clean:web', () => { return clean(apps.web); });
+gulp.task('copy:web', callback => { return copyStatic(apps.web, callback) });
+gulp.task('build:html:web', () => { return buildHTML(apps.web); });
+gulp.task('build:css:web', () => { return buildCSS(apps.web); });
+gulp.task('build:js:web', c => { return buildJS(apps.web, false, c); });
+gulp.task('build:web', gulp.series('clean:web', 'copy:web', 'build:html:web', 'build:css:web', 'build:js:web'));
+gulp.task('watch:web', callback => { return watchApp(apps.web, callback); });
